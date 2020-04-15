@@ -21,7 +21,7 @@ class PluginBundleValues private constructor() {
          * Type: `String`.
          *
          *
-         * String message to display in a Toast message.
+         * Path of image
          */
         const val BUNDLE_EXTRA_STRING_PATH =
             "${BuildConfig.APPLICATION_ID}.extra.STRING_PATH" //$NON-NLS-1$
@@ -31,16 +31,19 @@ class PluginBundleValues private constructor() {
          *
          * versionCode of the plug-in that saved the Bundle.
          */
-/*
-     * This extra is not strictly required, however it makes backward and forward compatibility
-     * significantly easier. For example, suppose a bug is found in how some version of the plug-in
-     * stored its Bundle. By having the version, the plug-in can better detect when such bugs occur.
-     */
+        /*
+         * This extra is not strictly required, however it makes backward and forward compatibility
+         * significantly easier. For example, suppose a bug is found in how some version of the plug-in
+         * stored its Bundle. By having the version, the plug-in can better detect when such bugs occur.
+         */
         @Suppress("MemberVisibilityCanBePrivate")
         const val BUNDLE_EXTRA_INT_VERSION_CODE =
             "${BuildConfig.APPLICATION_ID}.extra.INT_VERSION_CODE" //$NON-NLS-1$
 
-        const val ACTION = "${BuildConfig.APPLICATION_ID}.extra.ACTION"
+        const val BUNDLE_EXTRA_INT_ACTION = "${BuildConfig.APPLICATION_ID}.extra.ACTION"
+
+        const val ACTION_GET_INFO = 0
+        const val ACTION_SET_THEME = 1
 
         /**
          * Method to verify the content of the bundle are correct.
@@ -56,11 +59,9 @@ class PluginBundleValues private constructor() {
                 return false
             }
             try {
-                BundleAssertions.assertHasString(
+                BundleAssertions.assertHasInt(
                     bundle,
-                    BUNDLE_EXTRA_STRING_PATH,
-                    false,
-                    false
+                    BUNDLE_EXTRA_INT_ACTION
                 )
                 BundleAssertions.assertHasInt(
                     bundle,
@@ -82,17 +83,19 @@ class PluginBundleValues private constructor() {
         fun generateBundle(
             context: Context,
             action : Int,
-            path: String?
+            path: String? = null
         ): Bundle {
             Assertions.assertNotNull(context, "context") //$NON-NLS-1$
-            Assertions.assertNotEmpty(path, "path") //$NON-NLS-1$
+            if (path != null)
+                Assertions.assertNotEmpty(path, "path") //$NON-NLS-1$
             val result = Bundle()
             result.putInt(
                 BUNDLE_EXTRA_INT_VERSION_CODE,
                 AppBuildInfo.getVersionCode(context)
             )
-            result.putInt(ACTION, action)
-            result.putString(BUNDLE_EXTRA_STRING_PATH, path)
+            result.putInt(BUNDLE_EXTRA_INT_ACTION, action)
+            if (path != null)
+                result.putString(BUNDLE_EXTRA_STRING_PATH, path)
             return result
         }
 
@@ -104,7 +107,7 @@ class PluginBundleValues private constructor() {
             return bundle.getString(BUNDLE_EXTRA_STRING_PATH)
         }
 
-        fun getAction(bundle: Bundle) = bundle.getInt(ACTION)
+        fun getAction(bundle: Bundle) = bundle.getInt(BUNDLE_EXTRA_INT_ACTION)
     }
 
     /**

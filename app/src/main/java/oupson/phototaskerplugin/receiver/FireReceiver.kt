@@ -3,6 +3,7 @@ package oupson.phototaskerplugin.receiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
@@ -14,17 +15,18 @@ import androidx.palette.graphics.Palette
 import com.topjohnwu.superuser.Shell
 import lineageos.style.StyleInterface
 import oupson.phototaskerplugin.BuildConfig
+import oupson.phototaskerplugin.R
 import oupson.phototaskerplugin.bundle.PluginBundleValues
 import oupson.phototaskerplugin.helper.OverlayHelper
 import oupson.phototaskerplugin.tasker.TaskerPlugin
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
+import java.io.InputStream
 
 class FireReceiver : AbstractPluginSettingReceiver() {
     companion object {
         private const val TAG = "FireReceiver"
-
         private val packageList = listOf(
             "org.lineageos.overlay.accent.blue",
             "org.lineageos.overlay.accent.brown",
@@ -55,7 +57,6 @@ class FireReceiver : AbstractPluginSettingReceiver() {
         Shell.Config.setTimeout(10)
     }
 
-
     override fun isBundleValid(bundle: Bundle): Boolean {
         return PluginBundleValues.isBundleValid(bundle)
     }
@@ -69,28 +70,12 @@ class FireReceiver : AbstractPluginSettingReceiver() {
 
         if (isOrderedBroadcast)
             resultCode = TaskerPlugin.Setting.RESULT_CODE_PENDING
+
         try {
             when (PluginBundleValues.getAction(bundle)) {
-                0 -> {
+                PluginBundleValues.ACTION_GET_INFO -> {
                     // GET INFO
-                    val path = Uri.parse(PluginBundleValues.getPath(bundle))
-                    var inputStream = when (path.scheme) {
-                        "content" -> context.contentResolver.openInputStream(path) ?: return
-                        "file" -> FileInputStream(File(path.path!!))
-                        else -> {
-                            val file =
-                                File(PluginBundleValues.getPath(bundle)?.let { if (!it.startsWith("sdcard")) "sdcard/$it" else it }!!)
-                            if (file.exists()) {
-                                FileInputStream(file)
-                            } else {
-                                throw FileNotFoundException(file.path)
-                            }
-                        }
-                    }
-                    val bitmap = BitmapFactory.decodeStream(inputStream)
-                    inputStream.close()
-
-
+                    val bitmap = getBitmap(context, PluginBundleValues.getPath(bundle)!!)!!
                     val vars = Bundle()
 
                     //region Palette
@@ -181,24 +166,7 @@ class FireReceiver : AbstractPluginSettingReceiver() {
                     // endregion
 
                     try {
-                        inputStream = when (path.scheme) {
-                            "content" -> context.contentResolver.openInputStream(path) ?: return
-                            "file" -> FileInputStream(File(path.path!!))
-                            else -> {
-                                val file =
-                                    File(PluginBundleValues.getPath(bundle)?.let {
-                                        if (!it.startsWith(
-                                                "sdcard"
-                                            )
-                                        ) "sdcard/$it" else it
-                                    }!!)
-                                if (file.exists()) {
-                                    FileInputStream(file)
-                                } else {
-                                    throw FileNotFoundException(file.path)
-                                }
-                            }
-                        }
+                        val inputStream = openInputStream(context, PluginBundleValues.getPath(bundle)!!)!!
                         val exif = ExifInterface(inputStream)
                         inputStream.close()
 
@@ -243,6 +211,7 @@ class FireReceiver : AbstractPluginSettingReceiver() {
                             TaskerPlugin.Setting.RESULT_CODE_FAILED,
                             vars
                         )
+                        return
                     }
 
                     TaskerPlugin.Setting.signalFinish(
@@ -251,26 +220,11 @@ class FireReceiver : AbstractPluginSettingReceiver() {
                         TaskerPlugin.Setting.RESULT_CODE_OK,
                         vars
                     )
+                    return
                 }
-                1 -> {
+                PluginBundleValues.ACTION_SET_THEME -> {
                     // Set style
-                    val path = Uri.parse(PluginBundleValues.getPath(bundle))
-                    val inputStream = when (path.scheme) {
-                        "content" -> context.contentResolver.openInputStream(path) ?: return
-                        "file" -> FileInputStream(File(path.path!!))
-                        else -> {
-                            val file =
-                                File(PluginBundleValues.getPath(bundle)?.let { if (!it.startsWith("sdcard")) "sdcard/$it" else it}!!)
-                            if (file.exists()) {
-                                FileInputStream(file)
-                            } else {
-                                throw FileNotFoundException(file.path)
-                            }
-                        }
-                    }
-                    val bitmap = BitmapFactory.decodeStream(inputStream)
-                    inputStream.close()
-
+                    val bitmap = getBitmap(context, PluginBundleValues.getPath(bundle)!!)!!
                     if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
                         val styleInterface = StyleInterface.getInstance(context)
                         val suggestion = styleInterface.getSuggestion(bitmap, accentColors)
@@ -291,6 +245,8 @@ class FireReceiver : AbstractPluginSettingReceiver() {
                         OverlayHelper.setDarkMode(context, suggestion.first)
                         if (suggestion.second != null)
                             OverlayHelper.setAccentPackage(suggestion.second!!)
+                    } else {
+                        throw java.lang.Exception(context.getString(R.string.unsupported_device))
                     }
                 }
             }
@@ -305,6 +261,30 @@ class FireReceiver : AbstractPluginSettingReceiver() {
             val vars = Bundle()
             vars.putString(TaskerPlugin.Setting.VARNAME_ERROR_MESSAGE, e.message)
             TaskerPlugin.Setting.signalFinish(context, intent, TaskerPlugin.Setting.RESULT_CODE_FAILED, vars)
+        }
+    }
+
+    private fun getBitmap(context: Context, path : String) : Bitmap? {
+        val inputStream = openInputStream(context, path) ?: return null
+        val bitmap = BitmapFactory.decodeStream(inputStream)
+        inputStream.close()
+        return bitmap
+    }
+
+    private fun openInputStream(context : Context, path : String) : InputStream? {
+        val pathUri = Uri.parse(path)
+        return when (pathUri.scheme) {
+            "content" -> context.contentResolver.openInputStream(pathUri)
+            "file" -> FileInputStream(File(pathUri.path!!))
+            else -> {
+                val file =
+                    File(path.let { if (!it.startsWith("sdcard")) "sdcard/$it" else it })
+                if (file.exists()) {
+                    FileInputStream(file)
+                } else {
+                    throw FileNotFoundException(file.path)
+                }
+            }
         }
     }
 }

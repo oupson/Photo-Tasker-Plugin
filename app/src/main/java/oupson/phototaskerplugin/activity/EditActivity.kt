@@ -2,7 +2,6 @@ package oupson.phototaskerplugin.activity
 
 import android.app.Activity
 import android.content.pm.PackageManager
-import android.opengl.Visibility
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -11,7 +10,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Spinner
 import androidx.annotation.Nullable
 import com.twofortyfouram.locale.sdk.client.ui.activity.AbstractAppCompatPluginActivity
 import kotlinx.android.synthetic.main.activity_edit.*
@@ -38,8 +36,6 @@ class EditActivity : AbstractAppCompatPluginActivity() {
             // Apply the adapter to the spinner
             action_selector_spinner.adapter = adapter
         }
-
-
 
         action_selector_spinner.onItemSelectedListener = (object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -75,7 +71,7 @@ class EditActivity : AbstractAppCompatPluginActivity() {
         try {
             callingApplicationLabel = packageManager.getApplicationLabel(
                 packageManager.getApplicationInfo(
-                    callingPackage,
+                    callingPackage!!,
                     0
                 )
             )
@@ -150,41 +146,51 @@ class EditActivity : AbstractAppCompatPluginActivity() {
         return true
     }
 
+    override fun onBackPressed() {
+        val message = when (action_selector_spinner.selectedItemPosition) {
+            0 -> path_input_layout.editText?.text?.toString() ?: ""
+            1 -> theme_image_path.editText?.text?.toString() ?: ""
+            else -> ""
+        }
+        mIsCancelled = TextUtils.isEmpty(message)
+        val resIntent = intent
+
+        if (TaskerPlugin.Setting.hostSupportsSynchronousExecution(intent.extras)) {
+            TaskerPlugin.Setting.requestTimeoutMS(resIntent, TaskerPlugin.Setting.REQUESTED_TIMEOUT_MS_NEVER)
+        }
+
+        if (TaskerPlugin.hostSupportsRelevantVariables(intent.extras) && action_selector_spinner.selectedItemPosition == 0 && !mIsCancelled) {
+            println("TRUE")
+            TaskerPlugin.addRelevantVariableList(resIntent, arrayOf(
+                "%vibrant\n Vibrant color\n",
+                "%vibranttext\n Vibrant text color\n",
+                "%darkvibrant\n Dark Vibrant color\n",
+                "%darkvibranttext\n Dark Vibrant text color\n",
+                "%lightvibrant\n Light Vibrant color\n",
+                "%lightvibranttext\n Light Vibrant text color\n",
+                "%muted\n Muted color\n",
+                "%mutedtext\n Muted Text color\n",
+                "%darkmuted\n Dark Muted color\n",
+                "%darkmutedtext\n Dark Muted text color\n",
+                "%lightmuted\n Light Muted text color\n",
+                "%lightmutedtext\n Light Muted text color\n",
+                "%metadata_lat\nLatitude\n",
+                "%metadata_long\nLongitude\n",
+                "%metadata_model\nModel\n",
+                "%metadata_artist\nArtist\n",
+                "%metadata_date\nDate"
+            ))
+        }
+
+        setResult(Activity.RESULT_OK, resIntent)
+        finish()
+        super.onBackPressed()
+    }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when(item?.itemId) {
             android.R.id.home -> {
-                mIsCancelled = false
-                val resIntent = intent
-
-                if (TaskerPlugin.Setting.hostSupportsSynchronousExecution(intent.extras)) {
-                    TaskerPlugin.Setting.requestTimeoutMS(resIntent, TaskerPlugin.Setting.REQUESTED_TIMEOUT_MS_NEVER)
-                }
-
-                if (TaskerPlugin.hostSupportsRelevantVariables(intent.extras) && action_selector_spinner.selectedItemPosition == 0) {
-                    println("TRUE")
-                    TaskerPlugin.addRelevantVariableList(resIntent, arrayOf(
-                        "%vibrant\n Vibrant color\n",
-                        "%vibranttext\n Vibrant text color\n",
-                        "%darkvibrant\n Dark Vibrant color\n",
-                        "%darkvibranttext\n Dark Vibrant text color\n",
-                        "%lightvibrant\n Light Vibrant color\n",
-                        "%lightvibranttext\n Light Vibrant text color\n",
-                        "%muted\n Muted color\n",
-                        "%mutedtext\n Muted Text color\n",
-                        "%darkmuted\n Dark Muted color\n",
-                        "%darkmutedtext\n Dark Muted text color\n",
-                        "%lightmuted\n Light Muted text color\n",
-                        "%lightmutedtext\n Light Muted text color\n",
-                        "%metadata_lat\nLatitude\n",
-                        "%metadata_long\nLongitude\n",
-                        "%metadata_model\nModel\n",
-                        "%metadata_artist\nArtist\n",
-                        "%metadata_date\nDate"
-                    ))
-                }
-
-                setResult(Activity.RESULT_OK, resIntent)
-                finish()
+                onBackPressed()
                 true
             }
             R.id.menu_discard_changes -> {
@@ -192,7 +198,7 @@ class EditActivity : AbstractAppCompatPluginActivity() {
                 finish()
                 true
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> if (item != null) super.onOptionsItemSelected(item) else false
         }
     }
 }
