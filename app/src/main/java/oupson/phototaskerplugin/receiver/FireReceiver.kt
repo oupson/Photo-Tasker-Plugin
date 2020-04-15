@@ -3,9 +3,7 @@ package oupson.phototaskerplugin.receiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -22,8 +20,6 @@ import oupson.phototaskerplugin.tasker.TaskerPlugin
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
-import kotlin.math.abs
-
 
 class FireReceiver : AbstractPluginSettingReceiver() {
     companion object {

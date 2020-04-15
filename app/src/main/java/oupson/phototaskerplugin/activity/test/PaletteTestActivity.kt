@@ -69,72 +69,72 @@ class PaletteTestActivity : AppCompatActivity() {
         withContext(Dispatchers.Main) {
             if (palette.lightVibrantSwatch != null) {
                 palette_lightVibrant_textView.text =
-                    String.format("Light Vibrant : #%06X", palette.lightVibrantSwatch?.rgb)
+                    String.format("%s : #%06X", getString(R.string.light_muted), palette.lightVibrantSwatch?.rgb)
                 palette_lightVibrant_textView.setBackgroundColor(palette.lightVibrantSwatch!!.rgb)
                 palette_lightVibrant_textView.setTextColor(palette.lightVibrantSwatch!!.titleTextColor)
             } else {
                 palette_lightVibrant_textView.text =
-                    String.format("Light Vibrant : null")
+                    String.format("%s : null", getString(R.string.light_muted))
                 palette_lightVibrant_textView.setBackgroundColor(ContextCompat.getColor(this@PaletteTestActivity, android.R.color.transparent))
                 palette_lightVibrant_textView.setTextColor(ContextCompat.getColor(this@PaletteTestActivity, android.R.color.black))
             }
 
             if (palette.vibrantSwatch != null) {
                 palette_vibrant_textView.text =
-                    String.format("Vibrant : #%06X", palette.vibrantSwatch?.rgb)
+                    String.format("%s : #%06X", getString(R.string.vibrant), palette.vibrantSwatch?.rgb)
                 palette_vibrant_textView.setBackgroundColor(palette.vibrantSwatch!!.rgb)
                 palette_vibrant_textView.setTextColor(palette.vibrantSwatch!!.titleTextColor)
             } else {
                 palette_vibrant_textView.text =
-                    String.format("Vibrant : null")
+                    String.format("%s : null", getString(R.string.vibrant))
                 palette_vibrant_textView.setBackgroundColor(ContextCompat.getColor(this@PaletteTestActivity, android.R.color.transparent))
                 palette_vibrant_textView.setTextColor(ContextCompat.getColor(this@PaletteTestActivity, android.R.color.black))
             }
 
             if (palette.darkVibrantSwatch != null) {
                 palette_darkVibrant_textView.text =
-                    String.format("Dark Vibrant : #%06X", palette.darkVibrantSwatch?.rgb)
+                    String.format("%s : #%06X", getString(R.string.dark_vibrant), palette.darkVibrantSwatch?.rgb)
                 palette_darkVibrant_textView.setBackgroundColor(palette.darkVibrantSwatch!!.rgb)
                 palette_darkVibrant_textView.setTextColor(palette.darkVibrantSwatch!!.titleTextColor)
             } else {
                 palette_darkVibrant_textView.text =
-                    String.format("Dark Vibrant : null")
+                    String.format("%s : null", getString(R.string.dark_vibrant))
                 palette_darkVibrant_textView.setBackgroundColor(ContextCompat.getColor(this@PaletteTestActivity, android.R.color.transparent))
                 palette_darkVibrant_textView.setTextColor(ContextCompat.getColor(this@PaletteTestActivity, android.R.color.black))
             }
 
             if (palette.lightMutedSwatch != null) {
                 palette_lightMuted_textView.text =
-                    String.format("Light Muted : #%06X", palette.lightMutedSwatch?.rgb)
+                    String.format("%s : #%06X", getString(R.string.light_muted), palette.lightMutedSwatch?.rgb)
                 palette_lightMuted_textView.setBackgroundColor(palette.lightMutedSwatch!!.rgb)
                 palette_lightMuted_textView.setTextColor(palette.lightMutedSwatch!!.titleTextColor)
             } else {
                 palette_lightMuted_textView.text =
-                    String.format("Light Muted : null")
+                    String.format("%s : null", getString(R.string.light_muted))
                 palette_lightMuted_textView.setBackgroundColor(ContextCompat.getColor(this@PaletteTestActivity, android.R.color.transparent))
                 palette_lightMuted_textView.setTextColor(ContextCompat.getColor(this@PaletteTestActivity, android.R.color.black))
             }
 
             if (palette.mutedSwatch != null) {
                 palette_muted_textView.text =
-                    String.format("Muted : #%06X", palette.mutedSwatch?.rgb)
+                    String.format("%s : #%06X", getString(R.string.muted), palette.mutedSwatch?.rgb)
                 palette_muted_textView.setBackgroundColor(palette.mutedSwatch!!.rgb)
                 palette_muted_textView.setTextColor(palette.mutedSwatch!!.titleTextColor)
             } else {
                 palette_muted_textView.text =
-                    String.format("Muted : null")
+                    String.format("%s : null", getString(R.string.muted))
                 palette_muted_textView.setBackgroundColor(ContextCompat.getColor(this@PaletteTestActivity, android.R.color.transparent))
                 palette_muted_textView.setTextColor(ContextCompat.getColor(this@PaletteTestActivity, android.R.color.black))
             }
 
             if (palette.darkMutedSwatch != null) {
                 palette_darkMuted_textView.text =
-                    String.format("Light Muted : #%06X", palette.darkMutedSwatch?.rgb)
+                    String.format("%s : #%06X", getString(R.string.dark_muted), palette.darkMutedSwatch?.rgb)
                 palette_darkMuted_textView.setBackgroundColor(palette.darkMutedSwatch!!.rgb)
                 palette_darkMuted_textView.setTextColor(palette.darkMutedSwatch!!.titleTextColor)
             } else {
                 palette_darkMuted_textView.text =
-                    String.format("Dark Muted : null")
+                    String.format("%s : null", getString(R.string.dark_muted))
                 palette_darkMuted_textView.setBackgroundColor(ContextCompat.getColor(this@PaletteTestActivity, android.R.color.transparent))
                 palette_darkMuted_textView.setTextColor(ContextCompat.getColor(this@PaletteTestActivity, android.R.color.black))
             }
@@ -144,7 +144,7 @@ class PaletteTestActivity : AppCompatActivity() {
             val suggestion = OverlayHelper.getSuggestion(this@PaletteTestActivity, bitmap)
             val colorList = OverlayHelper.getColorList(this@PaletteTestActivity, suggestion.first).entries.associateBy({it.value}) {it.key}
             withContext(Dispatchers.Main) {
-                suggestion_text_View.text = String.format("Suggestion : %s (#%08X)", suggestion.second, colorList[suggestion.second])
+                suggestion_text_View.text = String.format("%s : %s (#%08X)", getString(R.string.suggestion), suggestion.second, colorList[suggestion.second])
                 suggestion_text_View.setBackgroundColor(colorList[suggestion.second]!!)
                 suggestion_text_View.setTextColor(if (suggestion.first) getColor(android.R.color.white) else getColor(android.R.color.black))
             }

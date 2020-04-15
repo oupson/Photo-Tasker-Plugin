@@ -2,8 +2,26 @@
     <string name="app_name">Photo Tasker Plugin</string>
 
     <string name="plugin_name">Photo Tasker Plugin</string>
-
-    <string name="path_image">Path of the image to load</string>
-
     <string name="unsupported_device">Unsupported Device</string>
+
+    <!-- Edit Activity -->
+    <string name="get_image_info">Get image information</string>
+    <string name="set_theme">Set theme</string>
+    <string name="path_image_info_hint">Path of the image to load.</string>
+    <string name="path_image_theme_hint">Path of image where color are extracted.</string>
+    
+    <!-- Test Activity -->
+    <string name="set_light_theme">Set light theme</string>
+    <string name="set_dark_theme">Set dark theme</string>
+    <string name="open_palette_activity">Open Palette Test Activity</string>
+
+    <!-- Palette Test Activity -->
+    <string name="wallpaper_imageView_description">ImageView showing current wallpaper</string>
+    <string name="light_vibrant">Light Vibrant</string>
+    <string name="vibrant">Vibrant</string>
+    <string name="dark_vibrant">Dark Vibrant</string>
+    <string name="light_muted">Light Muted</string>
+    <string name="muted">Muted</string>
+    <string name="dark_muted">Dark Muted</string>
+    <string name="suggestion">Suggestion</string>
 </resources>

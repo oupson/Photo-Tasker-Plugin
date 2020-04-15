@@ -7,22 +7,36 @@
     tools:context=".activity.TestActivity">
 
     <Button
-        android:id="@+id/set_theme"
-        android:layout_width="wrap_content"
+        android:id="@+id/set_lightTheme_button"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Set Theme" />
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/set_light_theme"
+        app:layout_constraintEnd_toStartOf="@+id/set_darkTheme_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/darktheme"
-        android:layout_width="wrap_content"
+        android:id="@+id/set_darkTheme_button"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="@string/set_dark_theme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/set_lightTheme_button"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/open_paletteActivity_button"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Open Palette Activity"
-        app:layout_constraintTop_toBottomOf="@+id/set_theme" />
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="@string/open_palette_activity"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/set_lightTheme_button" />
 </androidx.constraintlayout.widget.ConstraintLayout>

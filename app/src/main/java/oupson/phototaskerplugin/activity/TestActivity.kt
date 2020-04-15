@@ -53,7 +53,7 @@ class TestActivity : AppCompatActivity() {
             Log.i(TAG, "getAccent without list take ${getAccentTime}ms")
         }
 
-        darktheme.setOnClickListener {
+        set_darkTheme_button.setOnClickListener {
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P && lineageos.os.Build.LINEAGE_VERSION.SDK_INT == lineageos.os.Build.LINEAGE_VERSION_CODES.ILAMA) {
                 val s = StyleInterface.getInstance(this)
                 s.setGlobalStyle(
@@ -67,7 +67,7 @@ class TestActivity : AppCompatActivity() {
             }
         }
 
-        set_theme.setOnClickListener {
+        set_lightTheme_button.setOnClickListener {
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P && lineageos.os.Build.LINEAGE_VERSION.SDK_INT == lineageos.os.Build.LINEAGE_VERSION_CODES.ILAMA) {
                 val s = StyleInterface.getInstance(this)
                 s.setGlobalStyle(

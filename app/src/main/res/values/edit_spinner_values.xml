@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- TODO -->
 <resources>
     <string-array name="edit_spinner_array">
-        <item>Get info</item>
-        <item>Set Theme</item>
+        <item>@string/get_image_info</item>
+        <item>@string/set_theme</item>
     </string-array>
 </resources>
