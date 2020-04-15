@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Photo Tasker Plugin</string>
+
+    <string name="plugin_name">Photo Tasker Plugin</string>
+
+    <string name="path_image">Path of the image to load</string>
+
+    <string name="unsupported_device">Unsupported Device</string>
+</resources>
