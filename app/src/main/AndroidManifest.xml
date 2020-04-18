@@ -35,6 +35,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".activity.EditActivity"
             android:exported="false"
@@ -56,7 +57,7 @@
             android:name=".activity.PluginActivity"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
-            android:label="@string/"
+            android:label="@string/plugin_name"
             android:targetActivity=".activity.EditActivity"
             tools:ignore="ExportedActivity">
 
@@ -100,5 +101,4 @@
             </intent-filter>
         </receiver>
     </application>
-
 </manifest>

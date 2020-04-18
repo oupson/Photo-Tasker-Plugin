@@ -3,7 +3,6 @@ package oupson.phototaskerplugin.activity
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.text.TextUtils
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -15,6 +14,9 @@ import com.twofortyfouram.locale.sdk.client.ui.activity.AbstractAppCompatPluginA
 import kotlinx.android.synthetic.main.activity_edit.*
 import oupson.phototaskerplugin.R
 import oupson.phototaskerplugin.bundle.PluginBundleValues
+import oupson.phototaskerplugin.fragment.EditFragment
+import oupson.phototaskerplugin.fragment.edit.InfoFragment
+import oupson.phototaskerplugin.fragment.edit.ThemeFragment
 import oupson.phototaskerplugin.tasker.TaskerPlugin
 
 
@@ -22,6 +24,7 @@ class EditActivity : AbstractAppCompatPluginActivity() {
     companion object {
         private const val TAG = "EditActivity"
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit)
@@ -46,14 +49,17 @@ class EditActivity : AbstractAppCompatPluginActivity() {
                 position: Int,
                 id: Long
             ) {
+                val transaction = supportFragmentManager.beginTransaction()
                 when (position) {
-                    0 -> {
-                        path_input_layout.visibility = View.VISIBLE
-                        theme_image_path.visibility = View.GONE
-                    }
-                    1 -> {
-                        path_input_layout.visibility = View.GONE
-                        theme_image_path.visibility = View.VISIBLE
+                    0 -> if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is InfoFragment) {
+                            transaction
+                                .replace(R.id.fragmentContainer, InfoFragment.newInstance(previousBundle))
+                                .commit()
+                        }
+                    1 -> if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is ThemeFragment) {
+                        transaction
+                            .replace(R.id.fragmentContainer, ThemeFragment.newInstance(previousBundle))
+                            .commit()
                     }
                 }
             }
@@ -91,14 +97,8 @@ class EditActivity : AbstractAppCompatPluginActivity() {
         previousBundle: Bundle,
         previousBlurb: String
     ) {
-        val message= PluginBundleValues.getPath(previousBundle)
         val a = PluginBundleValues.getAction(previousBundle)
         action_selector_spinner.setSelection(a)
-        when (a) {
-            0 ->  path_input_layout?.editText?.setText(message)
-            1 -> theme_image_path?.editText?.setText(message)
-        }
-
     }
 
     override fun isBundleValid(bundle: Bundle): Boolean {
@@ -107,28 +107,7 @@ class EditActivity : AbstractAppCompatPluginActivity() {
 
     @Nullable
     override fun getResultBundle(): Bundle? {
-        var result: Bundle? = null
-        val message = when (action_selector_spinner.selectedItemPosition) {
-            0 -> path_input_layout.editText?.text?.toString() ?: ""
-            1 -> theme_image_path.editText?.text?.toString() ?: ""
-            else -> ""
-        }
-        Log.v(TAG, "Path is $message")
-        if (!TextUtils.isEmpty(message)) {
-            result = PluginBundleValues.generateBundle(
-                applicationContext,
-                action_selector_spinner.selectedItemPosition,
-                message
-            )
-
-            if (TaskerPlugin.Setting.hostSupportsOnFireVariableReplacement(this)) {
-                TaskerPlugin.Setting.setVariableReplaceKeys(
-                    result,
-                    arrayOf(PluginBundleValues.BUNDLE_EXTRA_STRING_PATH)
-                )
-            }
-        }
-        return result
+        return (supportFragmentManager.findFragmentById(R.id.fragmentContainer) as? EditFragment)?.generateBundle()
     }
 
     override fun getResultBlurb(bundle: Bundle): String {
@@ -147,44 +126,18 @@ class EditActivity : AbstractAppCompatPluginActivity() {
     }
 
     override fun onBackPressed() {
-        val message = when (action_selector_spinner.selectedItemPosition) {
-            0 -> path_input_layout.editText?.text?.toString() ?: ""
-            1 -> theme_image_path.editText?.text?.toString() ?: ""
-            else -> ""
-        }
-        mIsCancelled = TextUtils.isEmpty(message)
+        println("onBackPressed")
+        mIsCancelled = (supportFragmentManager.findFragmentById(R.id.fragmentContainer) as? EditFragment)?.isCancelled() ?: false
         val resIntent = intent
 
         if (TaskerPlugin.Setting.hostSupportsSynchronousExecution(intent.extras)) {
             TaskerPlugin.Setting.requestTimeoutMS(resIntent, TaskerPlugin.Setting.REQUESTED_TIMEOUT_MS_NEVER)
         }
 
-        if (TaskerPlugin.hostSupportsRelevantVariables(intent.extras) && action_selector_spinner.selectedItemPosition == 0 && !mIsCancelled) {
-            println("TRUE")
-            TaskerPlugin.addRelevantVariableList(resIntent, arrayOf(
-                "%vibrant\n Vibrant color\n",
-                "%vibranttext\n Vibrant text color\n",
-                "%darkvibrant\n Dark Vibrant color\n",
-                "%darkvibranttext\n Dark Vibrant text color\n",
-                "%lightvibrant\n Light Vibrant color\n",
-                "%lightvibranttext\n Light Vibrant text color\n",
-                "%muted\n Muted color\n",
-                "%mutedtext\n Muted Text color\n",
-                "%darkmuted\n Dark Muted color\n",
-                "%darkmutedtext\n Dark Muted text color\n",
-                "%lightmuted\n Light Muted text color\n",
-                "%lightmutedtext\n Light Muted text color\n",
-                "%metadata_lat\nLatitude\n",
-                "%metadata_long\nLongitude\n",
-                "%metadata_model\nModel\n",
-                "%metadata_artist\nArtist\n",
-                "%metadata_date\nDate"
-            ))
-        }
+        (supportFragmentManager.findFragmentById(R.id.fragmentContainer) as? EditFragment)?.onBackPressed(intent, resIntent)
 
         setResult(Activity.RESULT_OK, resIntent)
         finish()
-        super.onBackPressed()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
