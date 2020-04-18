@@ -487,7 +487,7 @@ public class TaskerPlugin {
          * @param vars any variables that the plugin wants to set in the host
          * @see #hostSupportsSynchronousExecution(Bundle)
          */
-        public static boolean signalFinish( Context context, Intent originalFireIntent, int resultCode, Bundle vars ) {
+        public static boolean signalFinish(Context context, Intent originalFireIntent, int resultCode, Bundle vars ) {
 
             String errorPrefix = "signalFinish: ";
 
@@ -624,7 +624,7 @@ public class TaskerPlugin {
          * Note that for security reasons it is advisable to also store a message ID with the bundle
          * which can be compared to known IDs on receipt. The host cannot validate the source of
          * REQUEST_QUERY intents so fake data may be passed. Replay attacks are also possible.
-         * addPassThroughMesssageID() can be used to add an ID if the plugin doesn't wish to add it's
+         * addPassThroughMessageID() can be used to add an ID if the plugin doesn't wish to add it's
          * own ID to the pass through bundle.
          *
          * Note also that there are several situations where REQUEST_QUERY will not result in a
@@ -758,7 +758,7 @@ public class TaskerPlugin {
 
         /**
          * Add an intent to the fire intent before it goes to the plugin FireReceiver, which the plugin
-         * can use to signal when it is finished. Only use if @code{pluginWantsSychronousExecution} is true.
+         * can use to signal when it is finished. Only use if @code{pluginWantsSynchronousExecution} is true.
          *
          * @param fireIntent fire intent going to the plugin
          * @param completionIntent intent which will signal the host that the plugin is finished.
@@ -1015,7 +1015,7 @@ public class TaskerPlugin {
             // pick a number
             toReturn = sr.nextInt( Integer.MAX_VALUE );
 
-            // check we havn't see it recently
+            // check we haven't see it recently
             for ( int seen : lastRandomsSeen ) {
                 if ( seen == toReturn ) {
                     toReturn = -1;

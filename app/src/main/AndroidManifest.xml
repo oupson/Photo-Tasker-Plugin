@@ -20,14 +20,19 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
-        <activity android:name=".activity.test.PaletteTestActivity" android:exported="true" />
         <activity
-            android:name=".activity.TestActivity"
+            android:name=".activity.test.AccentListerActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".activity.test.PaletteTestActivity"
+            android:exported="true" />
+        <activity
+            android:name=".activity.test.TestActivity"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.APPLICATION_PREFERENCES"/>
+                <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
@@ -51,7 +56,7 @@
             android:name=".activity.PluginActivity"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
-            android:label="@string/plugin_name"
+            android:label="@string/"
             android:targetActivity=".activity.EditActivity"
             tools:ignore="ExportedActivity">
 

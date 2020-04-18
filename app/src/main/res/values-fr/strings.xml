@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Photo Tasker Plugin</string>
+    <string name="unsupported_device">L\'appareil n\'est pas supporté</string>
+    <string name="get_image_info">Obtenir des informations sur l\'image</string>
+    <string name="suggestion">Suggestion</string>
+    <string name="wallpaper_imageView_description">Une imageView affichant le fond d\'écran</string>
+    <string name="open_palette_activity">Ouvrir l\'activité de test de la Palette</string>
+    <string name="set_dark_theme">Mettre le thème sur sombre</string>
+    <string name="set_light_theme">Mettre le thème sur clair</string>
+    <string name="path_image_theme_hint">Localisation de l\'image utilisé pour le thème.</string>
+    <string name="set_theme">Changer le thème</string>
+    <string name="path_image_info_hint">Localisation de l\'image</string>
+    <string name="plugin_name">Photo Tasker Plugin</string>
+    <string name="open_accent_list_activity">Ouvrir la liste de couleurs d\'accentuation</string>
+</resources>

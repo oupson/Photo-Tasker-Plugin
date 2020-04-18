@@ -14,6 +14,7 @@ import oupson.phototaskerplugin.BuildConfig
  * Manages the [EXTRA_BUNDLE][com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE] for this
  * plug-in.
  */
+@Suppress("KDocUnresolvedReference")
 @ThreadSafe
 class PluginBundleValues private constructor() {
     companion object {
@@ -40,7 +41,7 @@ class PluginBundleValues private constructor() {
         const val BUNDLE_EXTRA_INT_VERSION_CODE =
             "${BuildConfig.APPLICATION_ID}.extra.INT_VERSION_CODE" //$NON-NLS-1$
 
-        const val BUNDLE_EXTRA_INT_ACTION = "${BuildConfig.APPLICATION_ID}.extra.ACTION"
+        private const val BUNDLE_EXTRA_INT_ACTION = "${BuildConfig.APPLICATION_ID}.extra.ACTION"
 
         const val ACTION_GET_INFO = 0
         const val ACTION_SET_THEME = 1
@@ -113,7 +114,7 @@ class PluginBundleValues private constructor() {
     /**
      * Private constructor prevents instantiation
      *
-     * @throws java.lang.UnsupportedOperationException because this class cannot be instantiated.
+     * @throws [UnsupportedOperationException] because this class cannot be instantiated.
      */
     init {
         throw UnsupportedOperationException("This class is non-instantiable") //$NON-NLS-1$

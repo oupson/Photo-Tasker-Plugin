@@ -15,6 +15,8 @@ import com.topjohnwu.superuser.Shell
 import oupson.phototaskerplugin.BuildConfig
 import kotlin.math.abs
 
+
+// TODO LINEAGEOS PIE
 class OverlayHelper {
     companion object {
         private const val TAG = "OverlayHelper"
