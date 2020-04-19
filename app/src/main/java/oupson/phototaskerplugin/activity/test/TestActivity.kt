@@ -1,5 +1,7 @@
 package oupson.phototaskerplugin.activity.test
 
+import android.R.attr.mode
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -11,11 +13,13 @@ import kotlinx.android.synthetic.main.activity_test.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import lineageos.providers.LineageSettings
 import lineageos.style.StyleInterface
 import oupson.phototaskerplugin.BuildConfig
 import oupson.phototaskerplugin.R
 import oupson.phototaskerplugin.helper.OverlayHelper
 import kotlin.system.measureTimeMillis
+
 
 class TestActivity : AppCompatActivity() {
     companion object {
@@ -28,11 +32,12 @@ class TestActivity : AppCompatActivity() {
         Shell.Config.setTimeout(10)
     }
 
+    @SuppressLint("NewApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q || OverlayHelper.isLineageOsPie()) {
             GlobalScope.launch(Dispatchers.IO) {
                 Log.i(TAG, OverlayHelper.getColorList(this@TestActivity, false).toString())
                 Log.i(
@@ -63,13 +68,7 @@ class TestActivity : AppCompatActivity() {
         }
 
         set_darkTheme_button.setOnClickListener {
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P && lineageos.os.Build.LINEAGE_VERSION.SDK_INT == lineageos.os.Build.LINEAGE_VERSION_CODES.ILAMA) {
-                val s = StyleInterface.getInstance(this)
-                s.setGlobalStyle(
-                    StyleInterface.STYLE_GLOBAL_DARK,
-                    s.accent
-                )
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q || OverlayHelper.isLineageOsPie()) {
                 OverlayHelper.setDarkMode(this, true)
             } else {
                 Toast.makeText(this, R.string.unsupported_device, Toast.LENGTH_SHORT).show()
@@ -77,13 +76,7 @@ class TestActivity : AppCompatActivity() {
         }
 
         set_lightTheme_button.setOnClickListener {
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P && lineageos.os.Build.LINEAGE_VERSION.SDK_INT == lineageos.os.Build.LINEAGE_VERSION_CODES.ILAMA) {
-                val s = StyleInterface.getInstance(this)
-                s.setGlobalStyle(
-                    StyleInterface.STYLE_GLOBAL_LIGHT,
-                    s.accent
-                )
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q || OverlayHelper.isLineageOsPie()) {
                 OverlayHelper.setDarkMode(this, false)
             } else {
                 Toast.makeText(this, R.string.unsupported_device, Toast.LENGTH_SHORT).show()

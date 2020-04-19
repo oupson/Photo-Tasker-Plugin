@@ -244,7 +244,7 @@ class FireReceiver : AbstractPluginSettingReceiver() {
                         val suggestion = OverlayHelper.getSuggestion(context, bitmap)
                         OverlayHelper.setDarkMode(context, suggestion.first)
                         if (suggestion.second != null)
-                            OverlayHelper.setAccentPackage(suggestion.second!!)
+                            OverlayHelper.setAccentPackage(context, suggestion.second!!)
                     } else {
                         throw java.lang.Exception(context.getString(R.string.unsupported_device))
                     }

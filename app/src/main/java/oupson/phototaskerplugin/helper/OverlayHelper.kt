@@ -12,103 +12,190 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.palette.graphics.Palette
 import com.topjohnwu.superuser.Shell
+import lineageos.providers.LineageSettings
+import lineageos.style.StyleInterface
 import oupson.phototaskerplugin.BuildConfig
+import java.lang.Exception
 import kotlin.math.abs
 
 
 // TODO LINEAGEOS PIE
 class OverlayHelper {
+    class UnsupportedDeviceException :
+        Exception("VERSION >= Q : ${Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q}; Lineage os Pie : ${isLineageOsPie()}")
+
     companion object {
         private const val TAG = "OverlayHelper"
 
         private const val ACCENT_COLOR_LIGHT_NAME = "accent_device_default_light"
         private const val ACCENT_COLOR_DARK_NAME = "accent_device_default_dark"
 
-        @RequiresApi(Build.VERSION_CODES.Q)
+        private val lineageOsAccentPackageList = listOf(
+            "org.lineageos.overlay.accent.blue",
+            "org.lineageos.overlay.accent.brown",
+            "org.lineageos.overlay.accent.cyan",
+            "org.lineageos.overlay.accent.green",
+            "org.lineageos.overlay.accent.orange",
+            "org.lineageos.overlay.accent.pink",
+            "org.lineageos.overlay.accent.purple",
+            "org.lineageos.overlay.accent.red",
+            "org.lineageos.overlay.accent.yellow"
+        )
+
+        @RequiresApi(Build.VERSION_CODES.P)
         fun getColorList(context: Context, isDark: Boolean): HashMap<Int, String> {
-            val colorList = hashMapOf<Int, String>()
-            val overlayDump = Shell.su("cmd overlay dump").exec()
-            if (overlayDump.isSuccess) {
-                overlayDump.out.joinToString("").split('}').forEach {
-                    if (it.contains("android.theme.customization.accent_color")) {
-                        val packageName = it.split(":0")[0]
-                        if (packageName.contains("black") && isDark)
-                            return@forEach
+            when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                    val colorList = hashMapOf<Int, String>()
+                    val overlayDump = Shell.su("cmd overlay dump").exec()
+                    if (overlayDump.isSuccess) {
+                        overlayDump.out.joinToString("").split('}').forEach {
+                            if (it.contains("android.theme.customization.accent_color")) {
+                                val packageName = it.split(":0")[0]
+                                if (packageName.contains("black") && isDark)
+                                    return@forEach
+                                val r = context.packageManager.getResourcesForApplication(packageName)
+                                val lightColor = r.getColor(
+                                    r.getIdentifier(ACCENT_COLOR_LIGHT_NAME, "color", packageName),
+                                    null
+                                )
+                                val darkColor = r.getColor(
+                                    r.getIdentifier(ACCENT_COLOR_DARK_NAME, "color", packageName),
+                                    null
+                                )
+
+                                colorList[if (isDark)
+                                    darkColor
+                                else
+                                    lightColor] = packageName
+                                if (BuildConfig.DEBUG)
+                                    Log.v(
+                                        TAG,
+                                        "$packageName : Light Color : ${String.format(
+                                            "#%08X",
+                                            lightColor
+                                        )}, Dark Color : ${String.format(
+                                            "#%08X",
+                                            darkColor
+                                        )}"
+                                    )
+                            }
+                        }
+                    }
+                    return colorList
+                }
+                isLineageOsPie() -> {
+                    val colorList = hashMapOf<Int, String>()
+                    lineageOsAccentPackageList.forEach {packageName ->
                         val r = context.packageManager.getResourcesForApplication(packageName)
                         val lightColor = r.getColor(
                             r.getIdentifier(ACCENT_COLOR_LIGHT_NAME, "color", packageName),
                             null
                         )
-                        val darkColor = r.getColor(
-                            r.getIdentifier(ACCENT_COLOR_DARK_NAME, "color", packageName),
-                            null
-                        )
+                        colorList[lightColor] = packageName
+                    }
+                    return colorList
+                }
+                else -> {
+                    throw UnsupportedDeviceException()
+                }
+            }
+        }
 
-                        colorList[if (isDark)
-                            darkColor
-                        else
-                            lightColor] = packageName
-                        if (BuildConfig.DEBUG)
-                            Log.v(
-                                TAG,
-                                "$packageName : Light Color : ${String.format(
-                                    "#%08X",
-                                    lightColor
-                                )}, Dark Color : ${String.format(
-                                    "#%08X",
-                                    darkColor
-                                )}"
-                            )
+        @RequiresApi(Build.VERSION_CODES.P)
+        fun setDarkMode(context: Context, isDark: Boolean) {
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    "android.permission.WRITE_SECURE_SETTINGS"
+                ) == PackageManager.PERMISSION_DENIED
+            ) {
+                Shell.su("pm grant ${context.packageName} android.permission.WRITE_SECURE_SETTINGS")
+                    .exec()
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (isDark && !isDarkModeEnabled(context)) {
+                    Settings.Secure.putInt(context.contentResolver, "ui_night_mode", 2)
+                } else if (!isLightModeEnabled(context) && !isDark) {
+                    Settings.Secure.putInt(context.contentResolver, "ui_night_mode", 1)
+                }
+
+                val uiModeManager =
+                    context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+                uiModeManager.enableCarMode(UiModeManager.MODE_NIGHT_AUTO)
+                uiModeManager.disableCarMode(UiModeManager.MODE_NIGHT_AUTO)
+            } else {
+                LineageSettings.System.putInt(
+                    context.contentResolver,
+                    LineageSettings.System.BERRY_GLOBAL_STYLE, if (isDark) 3 else 2
+                )
+                LineageSettings.System.putString(
+                    context.contentResolver,
+                    LineageSettings.System.BERRY_MANAGED_BY_APP, context.packageName
+                )
+            }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.P)
+        fun isDarkModeEnabled(context: Context): Boolean =
+            if (isLineageOsPie() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                Settings.Secure.getInt(context.contentResolver, "ui_night_mode") == 2
+            else
+                throw UnsupportedDeviceException()
+
+
+        @RequiresApi(Build.VERSION_CODES.P)
+        fun isLightModeEnabled(context: Context): Boolean =
+            if (isLineageOsPie() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                Settings.Secure.getInt(context.contentResolver, "ui_night_mode") == 1
+            else throw UnsupportedDeviceException()
+
+        @RequiresApi(Build.VERSION_CODES.P)
+        fun getAccentEnabled(
+            context: Context,
+            accentList: HashMap<Int, String> = getColorList(
+                context,
+                isDarkModeEnabled(context)
+            )
+        ): String? {
+            if (isLineageOsPie() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val list = Shell.su("cmd overlay list | grep [x]").exec()
+                val aList = accentList.values
+                if (list.isSuccess) {
+                    list.out.forEach {
+                        if (it.replace("[x] ", "") in aList)
+                            return it.replace("[x] ", "")
                     }
                 }
+                return null
+            } else {
+                throw UnsupportedDeviceException()
             }
-            return colorList
         }
 
-        @RequiresApi(Build.VERSION_CODES.Q)
-        fun setDarkMode(context: Context, isDark: Boolean) {
-            if (ActivityCompat.checkSelfPermission(context, "android.permission.WRITE_SECURE_SETTINGS") == PackageManager.PERMISSION_DENIED) {
-                Shell.su("pm grant ${context.packageName} android.permission.WRITE_SECURE_SETTINGS").exec()
-            }
-            if (isDark && !isDarkModeEnabled(context)) {
-                Settings.Secure.putInt(context.contentResolver, "ui_night_mode", 2)
-            } else if (!isLightModeEnabled(context) && !isDark) {
-                Settings.Secure.putInt(context.contentResolver, "ui_night_mode", 1)
-            }
-
-            val uiModeManager =
-                context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
-            uiModeManager.enableCarMode(UiModeManager.MODE_NIGHT_AUTO)
-            uiModeManager.disableCarMode(UiModeManager.MODE_NIGHT_AUTO)
-        }
-
-        @RequiresApi(Build.VERSION_CODES.Q)
-        fun isDarkModeEnabled(context: Context) : Boolean =
-            Settings.Secure.getInt(context.contentResolver, "ui_night_mode") == 2
-
-        @RequiresApi(Build.VERSION_CODES.Q)
-        fun isLightModeEnabled(context: Context) : Boolean
-            = Settings.Secure.getInt(context.contentResolver, "ui_night_mode") == 1
-
-        @RequiresApi(Build.VERSION_CODES.Q)
-        fun getAccentEnabled(context: Context, accentList : HashMap<Int, String> = getColorList(context, isDarkModeEnabled(context))) : String? {
-            val list = Shell.su("cmd overlay list | grep [x]").exec()
-            val aList = accentList.values
-            if (list.isSuccess) {
-                list.out.forEach {
-                    if (it.replace("[x] ", "") in aList)
-                        return it.replace("[x] ", "")
+        fun setAccentPackage(context: Context, pack: String) {
+            when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> Shell.su("cmd overlay enable-exclusive --category $pack").exec()
+                isLineageOsPie() -> {
+                    val enabled = getAccentEnabled(context)
+                    val success = if (enabled != null)
+                        Shell.su("cmd overlay disable $enabled").exec().isSuccess
+                    else
+                        true
+                    if (success) {
+                        Shell.su("cmd overlay enable $pack").exec()
+                        LineageSettings.System.putString(
+                            context.contentResolver,
+                            LineageSettings.System.BERRY_CURRENT_ACCENT, pack
+                        )
+                    }
                 }
+                else -> throw UnsupportedDeviceException()
             }
-            return null
-        }
-
-        fun setAccentPackage(pack: String) {
-            Shell.su("cmd overlay enable-exclusive --category $pack").exec()
         }
 
         @RequiresApi(Build.VERSION_CODES.Q)
-        fun getSuggestion(context: Context, bitmap: Bitmap) : Pair<Boolean, String?> {
+        fun getSuggestion(context: Context, bitmap: Bitmap): Pair<Boolean, String?> {
             val isDark = isDark(bitmap)
             if (BuildConfig.DEBUG)
                 Log.i(TAG, "Is Dark : $isDark")
@@ -117,7 +204,9 @@ class OverlayHelper {
 
             val accentColors = colorList.keys.toIntArray()
             val palette = Palette.from(bitmap).generate()
-            val vibrant = palette.vibrantSwatch?.rgb ?: palette.lightVibrantSwatch?.rgb ?: palette.darkVibrantSwatch?.rgb ?: palette.mutedSwatch?.rgb ?: Palette.from(bitmap).generate().swatches.sortedBy { it.population }[0].rgb
+            val vibrant = palette.vibrantSwatch?.rgb ?: palette.lightVibrantSwatch?.rgb
+            ?: palette.darkVibrantSwatch?.rgb ?: palette.mutedSwatch?.rgb ?: Palette.from(bitmap)
+                .generate().swatches.sortedBy { it.population }[0].rgb
 
             if (BuildConfig.DEBUG)
                 Log.i(TAG, "Selected color : ${String.format("#%06X", vibrant)}")
@@ -127,10 +216,25 @@ class OverlayHelper {
                 if (distance(vibrant, nearest) > distance(vibrant, it)) {
                     nearest = it
                     if (BuildConfig.DEBUG)
-                        Log.v(TAG, "Selected ${colorList[it]}(${distance(vibrant, nearest)}) : ${String.format("#%06X", nearest)}")
+                        Log.v(
+                            TAG,
+                            "Selected ${colorList[it]}(${distance(
+                                vibrant,
+                                nearest
+                            )}) : ${String.format("#%06X", nearest)}"
+                        )
                 } else {
                     if (BuildConfig.DEBUG)
-                        Log.v(TAG, "${colorList[nearest]}(${distance(vibrant, nearest)}; ${String.format("#%06X", nearest)}) vs ${colorList[it]}(${distance(vibrant, it)}; ${String.format("#%06X", it)})")
+                        Log.v(
+                            TAG,
+                            "${colorList[nearest]}(${distance(
+                                vibrant,
+                                nearest
+                            )}; ${String.format("#%06X", nearest)}) vs ${colorList[it]}(${distance(
+                                vibrant,
+                                it
+                            )}; ${String.format("#%06X", it)})"
+                        )
                 }
             }
 
@@ -139,6 +243,9 @@ class OverlayHelper {
 
             return Pair(isDark, colorList[nearest])
         }
+
+        fun isLineageOsPie() =
+            Build.VERSION.SDK_INT == Build.VERSION_CODES.P && lineageos.os.Build.LINEAGE_VERSION.SDK_INT == lineageos.os.Build.LINEAGE_VERSION_CODES.ILAMA
 
         private fun isDark(bitmap: Bitmap): Boolean {
             var dark = false
@@ -162,7 +269,7 @@ class OverlayHelper {
             return dark
         }
 
-        private fun distance(vibrant : Int, it : Int) : Float {
+        private fun distance(vibrant: Int, it: Int): Float {
             val vHsv = FloatArray(3)
             Color.colorToHSV(vibrant, vHsv)
             val iHsv = FloatArray(3)
