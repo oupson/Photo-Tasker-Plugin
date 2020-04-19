@@ -1,6 +1,5 @@
 package oupson.phototaskerplugin.activity.test
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -47,14 +46,13 @@ class AccentListerActivity : AppCompatActivity() {
         AccentAdapter(this, 0, colorList)
     }
 
-    @SuppressLint("NewApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_accent_lister)
 
         accentListView.adapter = adapter
-        //accentListView.isClickable = true
-        accentListView.setOnItemClickListener { parent, view, position, id ->
+
+        accentListView.setOnItemClickListener { _, _, position, _ ->
             try {
                 OverlayHelper.setAccentPackage(this, colorList[position].second)
             } catch (e : OverlayHelper.UnsupportedDeviceException) {

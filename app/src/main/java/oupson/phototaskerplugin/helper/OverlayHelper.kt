@@ -3,23 +3,20 @@ package oupson.phototaskerplugin.helper
 import android.app.UiModeManager
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.palette.graphics.Palette
 import com.topjohnwu.superuser.Shell
 import lineageos.providers.LineageSettings
-import lineageos.style.StyleInterface
 import oupson.phototaskerplugin.BuildConfig
-import java.lang.Exception
 import kotlin.math.abs
 
-
-// TODO LINEAGEOS PIE
 class OverlayHelper {
     class UnsupportedDeviceException :
         Exception("VERSION >= Q : ${Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q}; Lineage os Pie : ${isLineageOsPie()}")
@@ -29,6 +26,7 @@ class OverlayHelper {
 
         private const val ACCENT_COLOR_LIGHT_NAME = "accent_device_default_light"
         private const val ACCENT_COLOR_DARK_NAME = "accent_device_default_dark"
+        private const val ANDROID_PACKAGE = "android"
 
         private val lineageOsAccentPackageList = listOf(
             "org.lineageos.overlay.accent.blue",
@@ -42,11 +40,11 @@ class OverlayHelper {
             "org.lineageos.overlay.accent.yellow"
         )
 
-        @RequiresApi(Build.VERSION_CODES.P)
         fun getColorList(context: Context, isDark: Boolean): HashMap<Int, String> {
             when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
                     val colorList = hashMapOf<Int, String>()
+                    colorList[getSystemDefault(isDark)] = "default"
                     val overlayDump = Shell.su("cmd overlay dump").exec()
                     if (overlayDump.isSuccess) {
                         overlayDump.out.joinToString("").split('}').forEach {
@@ -54,7 +52,8 @@ class OverlayHelper {
                                 val packageName = it.split(":0")[0]
                                 if (packageName.contains("black") && isDark)
                                     return@forEach
-                                val r = context.packageManager.getResourcesForApplication(packageName)
+                                val r =
+                                    context.packageManager.getResourcesForApplication(packageName)
                                 val lightColor = r.getColor(
                                     r.getIdentifier(ACCENT_COLOR_LIGHT_NAME, "color", packageName),
                                     null
@@ -86,7 +85,8 @@ class OverlayHelper {
                 }
                 isLineageOsPie() -> {
                     val colorList = hashMapOf<Int, String>()
-                    lineageOsAccentPackageList.forEach {packageName ->
+                    colorList[getSystemDefault(isDark)] = "default"
+                    lineageOsAccentPackageList.forEach { packageName ->
                         val r = context.packageManager.getResourcesForApplication(packageName)
                         val lightColor = r.getColor(
                             r.getIdentifier(ACCENT_COLOR_LIGHT_NAME, "color", packageName),
@@ -102,7 +102,18 @@ class OverlayHelper {
             }
         }
 
-        @RequiresApi(Build.VERSION_CODES.P)
+        private fun getSystemDefault(isDark: Boolean): Int {
+            val system: Resources = Resources.getSystem()
+            return ResourcesCompat.getColor(
+                system,
+                system.getIdentifier(
+                    if (isDark) ACCENT_COLOR_DARK_NAME else ACCENT_COLOR_LIGHT_NAME,
+                    "color",
+                    ANDROID_PACKAGE
+                ), null
+            )
+        }
+
         fun setDarkMode(context: Context, isDark: Boolean) {
             if (ActivityCompat.checkSelfPermission(
                     context,
@@ -113,44 +124,47 @@ class OverlayHelper {
                     .exec()
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                if (isDark && !isDarkModeEnabled(context)) {
-                    Settings.Secure.putInt(context.contentResolver, "ui_night_mode", 2)
-                } else if (!isLightModeEnabled(context) && !isDark) {
-                    Settings.Secure.putInt(context.contentResolver, "ui_night_mode", 1)
-                }
+            when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                    if (isDark && !isDarkModeEnabled(context)) {
+                        Settings.Secure.putInt(context.contentResolver, "ui_night_mode", 2)
+                    } else if (!isLightModeEnabled(context) && !isDark) {
+                        Settings.Secure.putInt(context.contentResolver, "ui_night_mode", 1)
+                    }
 
-                val uiModeManager =
-                    context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
-                uiModeManager.enableCarMode(UiModeManager.MODE_NIGHT_AUTO)
-                uiModeManager.disableCarMode(UiModeManager.MODE_NIGHT_AUTO)
-            } else {
-                LineageSettings.System.putInt(
-                    context.contentResolver,
-                    LineageSettings.System.BERRY_GLOBAL_STYLE, if (isDark) 3 else 2
-                )
-                LineageSettings.System.putString(
-                    context.contentResolver,
-                    LineageSettings.System.BERRY_MANAGED_BY_APP, context.packageName
-                )
+                    val uiModeManager =
+                        context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+                    uiModeManager.enableCarMode(UiModeManager.MODE_NIGHT_AUTO)
+                    uiModeManager.disableCarMode(UiModeManager.MODE_NIGHT_AUTO)
+                }
+                isLineageOsPie() -> {
+                    LineageSettings.System.putInt(
+                        context.contentResolver,
+                        LineageSettings.System.BERRY_GLOBAL_STYLE, if (isDark) 3 else 2
+                    )
+                    LineageSettings.System.putString(
+                        context.contentResolver,
+                        LineageSettings.System.BERRY_MANAGED_BY_APP, context.packageName
+                    )
+                }
+                else -> {
+                    throw UnsupportedDeviceException()
+                }
             }
         }
 
-        @RequiresApi(Build.VERSION_CODES.P)
         fun isDarkModeEnabled(context: Context): Boolean =
             if (isLineageOsPie() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                 Settings.Secure.getInt(context.contentResolver, "ui_night_mode") == 2
             else
                 throw UnsupportedDeviceException()
 
-
-        @RequiresApi(Build.VERSION_CODES.P)
         fun isLightModeEnabled(context: Context): Boolean =
             if (isLineageOsPie() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                 Settings.Secure.getInt(context.contentResolver, "ui_night_mode") == 1
-            else throw UnsupportedDeviceException()
+            else
+                throw UnsupportedDeviceException()
 
-        @RequiresApi(Build.VERSION_CODES.P)
         fun getAccentEnabled(
             context: Context,
             accentList: HashMap<Int, String> = getColorList(
@@ -175,7 +189,16 @@ class OverlayHelper {
 
         fun setAccentPackage(context: Context, pack: String) {
             when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> Shell.su("cmd overlay enable-exclusive --category $pack").exec()
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                    if (pack != "default")
+                        Shell.su("cmd overlay enable-exclusive --category $pack").exec()
+                    else {
+                        val enabled = getAccentEnabled(context)
+                        if (enabled != null)
+                            Shell.su("cmd overlay disable $enabled").exec()
+                    }
+
+                }
                 isLineageOsPie() -> {
                     val enabled = getAccentEnabled(context)
                     val success = if (enabled != null)
@@ -183,10 +206,12 @@ class OverlayHelper {
                     else
                         true
                     if (success) {
-                        Shell.su("cmd overlay enable $pack").exec()
+                        if (pack != "default")
+                            Shell.su("cmd overlay enable $pack").exec()
                         LineageSettings.System.putString(
                             context.contentResolver,
-                            LineageSettings.System.BERRY_CURRENT_ACCENT, pack
+                            LineageSettings.System.BERRY_CURRENT_ACCENT,
+                            if (pack != "default") pack else ""
                         )
                     }
                 }
@@ -194,7 +219,6 @@ class OverlayHelper {
             }
         }
 
-        @RequiresApi(Build.VERSION_CODES.Q)
         fun getSuggestion(context: Context, bitmap: Bitmap): Pair<Boolean, String?> {
             val isDark = isDark(bitmap)
             if (BuildConfig.DEBUG)

@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.textfield.TextInputLayout
+import oupson.phototaskerplugin.BuildConfig
 
 import oupson.phototaskerplugin.R
 import oupson.phototaskerplugin.bundle.PluginBundleValues
@@ -17,6 +18,7 @@ import oupson.phototaskerplugin.tasker.TaskerPlugin
 class InfoFragment : EditFragment() {
     companion object {
         private const val TAG = "InfoFragment"
+
         @JvmStatic
         fun newInstance(previousBundle: Bundle?) = InfoFragment().apply {
             arguments = previousBundle
@@ -27,7 +29,6 @@ class InfoFragment : EditFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_info, container, false)
         if (arguments != null) {
             val path = PluginBundleValues.getPath(arguments!!)
@@ -39,9 +40,9 @@ class InfoFragment : EditFragment() {
     override fun generateBundle(): Bundle? {
         var result: Bundle? = Bundle()
         val path = view?.findViewById<TextInputLayout?>(R.id.path_input_layout)?.editText?.text
-        Log.v(TAG, "Path is $path")
+        if (BuildConfig.DEBUG)
+            Log.v(TAG, "Path is $path")
         if (!TextUtils.isEmpty(path) && context?.applicationContext != null) {
-            println("lol")
             result = PluginBundleValues.generateBundle(
                 context?.applicationContext!!,
                 PluginBundleValues.ACTION_GET_INFO,

@@ -13,9 +13,7 @@ import androidx.core.app.ActivityCompat
 import androidx.exifinterface.media.ExifInterface
 import androidx.palette.graphics.Palette
 import com.topjohnwu.superuser.Shell
-import lineageos.style.StyleInterface
 import oupson.phototaskerplugin.BuildConfig
-import oupson.phototaskerplugin.R
 import oupson.phototaskerplugin.bundle.PluginBundleValues
 import oupson.phototaskerplugin.helper.OverlayHelper
 import oupson.phototaskerplugin.tasker.TaskerPlugin
@@ -27,28 +25,6 @@ import java.io.InputStream
 class FireReceiver : AbstractPluginSettingReceiver() {
     companion object {
         private const val TAG = "FireReceiver"
-        private val packageList = listOf(
-            "org.lineageos.overlay.accent.blue",
-            "org.lineageos.overlay.accent.brown",
-            "org.lineageos.overlay.accent.cyan",
-            "org.lineageos.overlay.accent.green",
-            "org.lineageos.overlay.accent.orange",
-            "org.lineageos.overlay.accent.pink",
-            "org.lineageos.overlay.accent.purple",
-            "org.lineageos.overlay.accent.red",
-            "org.lineageos.overlay.accent.yellow"
-        )
-        private val accentColors = intArrayOf(
-            0x4182EF, // Blue
-            0x996A5A, // Brown
-            0x00B1E5, // Cyan
-            0x38853B, // Green
-            0xFF5722, // Orange
-            0xE6125E, // Pink
-            0x673AB7, // Purple
-            0xD0422D, // Red
-            0xF4AC45 // Yellow
-        )
     }
 
     init {
@@ -225,28 +201,19 @@ class FireReceiver : AbstractPluginSettingReceiver() {
                 PluginBundleValues.ACTION_SET_THEME -> {
                     // Set style
                     val bitmap = getBitmap(context, PluginBundleValues.getPath(bundle)!!)!!
-                    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
-                        val styleInterface = StyleInterface.getInstance(context)
-                        val suggestion = styleInterface.getSuggestion(bitmap, accentColors)
-                        val accent = packageList[suggestion.selectedAccent]
-                        if (accent != styleInterface.accent)
-                            styleInterface.accent = accent
-                        if (suggestion.globalStyle != styleInterface.globalStyle)
-                            styleInterface.setGlobalStyle(
-                                suggestion.globalStyle,
-                                BuildConfig.APPLICATION_ID
-                            )
-                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q || OverlayHelper.isLineageOsPie()) {
                         if (ActivityCompat.checkSelfPermission(context, "android.permission.WRITE_SECURE_SETTINGS") == PackageManager.PERMISSION_DENIED) {
-                            Shell.su("pm grant ${context.packageName} android.permission.WRITE_SECURE_SETTINGS").exec()
+                            Shell.su("pm grant ${context.packageName} android.permission.WRITE_SECURE_SETTINGS")
+                                .exec()
                         }
 
                         val suggestion = OverlayHelper.getSuggestion(context, bitmap)
                         OverlayHelper.setDarkMode(context, suggestion.first)
+
                         if (suggestion.second != null)
                             OverlayHelper.setAccentPackage(context, suggestion.second!!)
                     } else {
-                        throw java.lang.Exception(context.getString(R.string.unsupported_device))
+                        throw OverlayHelper.UnsupportedDeviceException()
                     }
                 }
             }

@@ -1,7 +1,5 @@
 package oupson.phototaskerplugin.activity.test
 
-import android.R.attr.mode
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -13,13 +11,10 @@ import kotlinx.android.synthetic.main.activity_test.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import lineageos.providers.LineageSettings
-import lineageos.style.StyleInterface
 import oupson.phototaskerplugin.BuildConfig
 import oupson.phototaskerplugin.R
 import oupson.phototaskerplugin.helper.OverlayHelper
 import kotlin.system.measureTimeMillis
-
 
 class TestActivity : AppCompatActivity() {
     companion object {
@@ -32,7 +27,6 @@ class TestActivity : AppCompatActivity() {
         Shell.Config.setTimeout(10)
     }
 
-    @SuppressLint("NewApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test)

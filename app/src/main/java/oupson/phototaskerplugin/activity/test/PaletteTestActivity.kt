@@ -37,6 +37,8 @@ class PaletteTestActivity : AppCompatActivity() {
 
         loadColors()
         val handler = Handler()
+
+        // TODO Before Android 8
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             wallpaperManager.addOnColorsChangedListener({ _, _ -> loadColors() }, handler)
         }
@@ -140,13 +142,13 @@ class PaletteTestActivity : AppCompatActivity() {
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q || OverlayHelper.isLineageOsPie()) {
             val suggestion = OverlayHelper.getSuggestion(this@PaletteTestActivity, bitmap)
             val colorList = OverlayHelper.getColorList(this@PaletteTestActivity, suggestion.first).entries.associateBy({it.value}) {it.key}
             withContext(Dispatchers.Main) {
                 suggestion_text_View.text = String.format("%s : %s (#%08X)", getString(R.string.suggestion), suggestion.second, colorList[suggestion.second])
                 suggestion_text_View.setBackgroundColor(colorList[suggestion.second]!!)
-                suggestion_text_View.setTextColor(if (suggestion.first) getColor(android.R.color.white) else getColor(android.R.color.black))
+                suggestion_text_View.setTextColor(if (suggestion.first) ContextCompat.getColor(this@PaletteTestActivity, android.R.color.white) else ContextCompat.getColor(this@PaletteTestActivity, android.R.color.black))
             }
         } else {
             withContext(Dispatchers.Main) {

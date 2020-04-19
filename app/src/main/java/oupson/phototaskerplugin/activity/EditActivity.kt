@@ -19,7 +19,6 @@ import oupson.phototaskerplugin.fragment.edit.InfoFragment
 import oupson.phototaskerplugin.fragment.edit.ThemeFragment
 import oupson.phototaskerplugin.tasker.TaskerPlugin
 
-
 class EditActivity : AbstractAppCompatPluginActivity() {
     companion object {
         private const val TAG = "EditActivity"
@@ -34,41 +33,42 @@ class EditActivity : AbstractAppCompatPluginActivity() {
             R.array.edit_spinner_array,
             android.R.layout.simple_spinner_item
         ).also { adapter ->
-            // Specify the layout to use when the list of choices appears
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            // Apply the adapter to the spinner
             action_selector_spinner.adapter = adapter
         }
 
-        action_selector_spinner.onItemSelectedListener = (object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        action_selector_spinner.onItemSelectedListener =
+            (object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
 
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                val transaction = supportFragmentManager.beginTransaction()
-                when (position) {
-                    0 -> if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is InfoFragment) {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    val transaction = supportFragmentManager.beginTransaction()
+                    when (position) {
+                        0 -> if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is InfoFragment) {
                             transaction
-                                .replace(R.id.fragmentContainer, InfoFragment.newInstance(previousBundle))
+                                .replace(
+                                    R.id.fragmentContainer,
+                                    InfoFragment.newInstance(previousBundle)
+                                )
                                 .commit()
                         }
-                    1 -> if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is ThemeFragment) {
-                        transaction
-                            .replace(R.id.fragmentContainer, ThemeFragment.newInstance(previousBundle))
-                            .commit()
+                        1 -> if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) !is ThemeFragment) {
+                            transaction
+                                .replace(
+                                    R.id.fragmentContainer,
+                                    ThemeFragment.newInstance(previousBundle)
+                                )
+                                .commit()
+                        }
                     }
                 }
-            }
-        })
+            })
 
-        /*
-         * To help the user keep context, the title shows the host's name and the subtitle
-         * shows the plug-in's name.
-         */
         /*
          * To help the user keep context, the title shows the host's name and the subtitle
          * shows the plug-in's name.
@@ -97,8 +97,7 @@ class EditActivity : AbstractAppCompatPluginActivity() {
         previousBundle: Bundle,
         previousBlurb: String
     ) {
-        val a = PluginBundleValues.getAction(previousBundle)
-        action_selector_spinner.setSelection(a)
+        action_selector_spinner.setSelection(PluginBundleValues.getAction(previousBundle))
     }
 
     override fun isBundleValid(bundle: Bundle): Boolean {
@@ -126,22 +125,29 @@ class EditActivity : AbstractAppCompatPluginActivity() {
     }
 
     override fun onBackPressed() {
-        println("onBackPressed")
-        mIsCancelled = (supportFragmentManager.findFragmentById(R.id.fragmentContainer) as? EditFragment)?.isCancelled() ?: false
+        mIsCancelled =
+            (supportFragmentManager.findFragmentById(R.id.fragmentContainer) as? EditFragment)?.isCancelled()
+                ?: false
         val resIntent = intent
 
         if (TaskerPlugin.Setting.hostSupportsSynchronousExecution(intent.extras)) {
-            TaskerPlugin.Setting.requestTimeoutMS(resIntent, TaskerPlugin.Setting.REQUESTED_TIMEOUT_MS_NEVER)
+            TaskerPlugin.Setting.requestTimeoutMS(
+                resIntent,
+                TaskerPlugin.Setting.REQUESTED_TIMEOUT_MS_NEVER
+            )
         }
 
-        (supportFragmentManager.findFragmentById(R.id.fragmentContainer) as? EditFragment)?.onBackPressed(intent, resIntent)
+        (supportFragmentManager.findFragmentById(R.id.fragmentContainer) as? EditFragment)?.onBackPressed(
+            intent,
+            resIntent
+        )
 
         setResult(Activity.RESULT_OK, resIntent)
         finish()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        return when(item?.itemId) {
+        return when (item?.itemId) {
             android.R.id.home -> {
                 onBackPressed()
                 true
