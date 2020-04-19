@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".fragment.edit.ThemeFragment">
+
+    <TextView
+        android:id="@+id/warning_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        tools:text="@string/supported_device_warning" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/theme_image_path"
@@ -19,4 +27,4 @@
             android:hint="@string/path_image_theme_hint" />
     </com.google.android.material.textfield.TextInputLayout>
 
-</FrameLayout>
+</LinearLayout>

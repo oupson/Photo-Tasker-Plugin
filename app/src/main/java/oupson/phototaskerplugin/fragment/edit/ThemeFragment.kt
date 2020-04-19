@@ -6,10 +6,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import com.google.android.material.textfield.TextInputLayout
 import oupson.phototaskerplugin.R
 import oupson.phototaskerplugin.bundle.PluginBundleValues
 import oupson.phototaskerplugin.fragment.EditFragment
+import oupson.phototaskerplugin.helper.OverlayHelper
 import oupson.phototaskerplugin.tasker.TaskerPlugin
 
 class ThemeFragment : EditFragment() {
@@ -31,6 +33,10 @@ class ThemeFragment : EditFragment() {
             val path = PluginBundleValues.getPath(arguments!!)
             view.findViewById<TextInputLayout?>(R.id.theme_image_path)?.editText?.setText(path)
         }
+        view.findViewById<TextView?>(R.id.warning_textView)?.text = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q || OverlayHelper.isLineageOsPie())
+            getString(R.string.supported_device_warning)
+        else
+            getString(R.string.unsupported_device)
         return view
     }
 
