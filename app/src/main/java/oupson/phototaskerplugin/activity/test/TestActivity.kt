@@ -31,6 +31,8 @@ class TestActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test)
 
+        setSupportActionBar(bottomAppBar)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q || OverlayHelper.isLineageOsPie()) {
             GlobalScope.launch(Dispatchers.IO) {
                 Log.i(TAG, OverlayHelper.getColorList(this@TestActivity, false).toString())

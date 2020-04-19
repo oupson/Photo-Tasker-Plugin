@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -50,6 +51,9 @@ class AccentListerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_accent_lister)
 
+        setSupportActionBar(bottomAppBar2)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         accentListView.adapter = adapter
 
         accentListView.setOnItemClickListener { _, _, position, _ ->
@@ -71,6 +75,16 @@ class AccentListerActivity : AppCompatActivity() {
             }
         } else {
             Toast.makeText(this, R.string.unsupported_device, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> super.onContextItemSelected(item)
         }
     }
 }
