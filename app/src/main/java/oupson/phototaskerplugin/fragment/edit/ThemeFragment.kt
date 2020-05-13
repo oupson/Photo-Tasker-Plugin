@@ -1,5 +1,6 @@
 package oupson.phototaskerplugin.fragment.edit
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -40,7 +41,7 @@ class ThemeFragment : EditFragment() {
         return view
     }
 
-    override fun generateBundle(): Bundle? {
+    override fun finish(intent: Intent, resIntent: Intent) {
         var result: Bundle? = Bundle()
         val path = view?.findViewById<TextInputLayout?>(R.id.theme_image_path)?.editText?.text
         Log.v(TAG, "Path is $path")
@@ -58,6 +59,8 @@ class ThemeFragment : EditFragment() {
                 )
             }
         }
-        return result
+        resIntent.putExtra(com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE, result)
+        resIntent.putExtra(com.twofortyfouram.locale.api.Intent.EXTRA_STRING_BLURB, "${getString(R.string.path_image_theme_hint)} : $path\nAction : ${getString(R.string.set_theme)}")
+        super.finish(intent, resIntent)
     }
 }

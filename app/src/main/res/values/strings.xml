@@ -4,16 +4,19 @@
     <string name="plugin_name">Photo Tasker Plugin</string>
     <string name="unsupported_device">Unsupported Device</string>
 
+    <!-- Permission -->
+    <string name="permission_description">set the theme. Even if your device is supported, this code was only tested on lineage os rom. It may not work on other rom/devices and could even break it.</string>
+
     <!-- Edit Activity -->
     <string name="get_image_info">Get image information</string>
     <string name="set_theme">Set theme</string>
 
     <!-- Info Fragment -->
-    <string name="path_image_info_hint">Path of the image to load.</string>
+    <string name="path_image_info_hint">Path of the image to load</string>
 
     <!-- Theme Fragment -->
-    <string name="supported_device_warning">Even if your device is supported, this code was only tested on lineage os rom. It may not work on other rom/devices and could even break it.</string>
-    <string name="path_image_theme_hint">Path of image where color are extracted.</string>
+    <string name="supported_device_warning">Even if your device is supported, this code was only tested on lineage os rom. It may not work on other rom/devices and could even break it</string>
+    <string name="path_image_theme_hint">Path of image where color are extracted</string>
 
     <!-- Test Activity -->
     <string name="set_light_theme">Set light theme</string>

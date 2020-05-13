@@ -8,10 +8,11 @@
     <string name="open_palette_activity">Ouvrir l\'activité de test de la Palette</string>
     <string name="set_dark_theme">Mettre le thème sur sombre</string>
     <string name="set_light_theme">Mettre le thème sur clair</string>
-    <string name="path_image_theme_hint">Localisation de l\'image utilisé pour le thème.</string>
+    <string name="path_image_theme_hint">Localisation de l\'image utilisé pour le thème</string>
     <string name="set_theme">Changer le thème</string>
     <string name="path_image_info_hint">Localisation de l\'image</string>
     <string name="plugin_name">Photo Tasker Plugin</string>
     <string name="open_accent_list_activity">Ouvrir la liste de couleurs d\'accentuation</string>
     <string name="supported_device_warning">Même si votre appareil est marqué comme supporté, cette fonctionnalité n\'a été testé que sur lineage os, et l\'utiliser sur une autre rom pourrait mal fonctionné ou briquer votre appareil. Ne l\'utilisez que si vous savez ce que vous faites.</string>
+    <string name="permission_description">changer le theme. Même si votre appareil est marqué comme supporté, cette fonctionnalité n\'a été testé que sur lineage os, et l\'utiliser sur une autre rom pourrait mal fonctionné ou briquer votre appareil. Ne l\'utilisez que si vous savez ce que vous faites</string>
 </resources>

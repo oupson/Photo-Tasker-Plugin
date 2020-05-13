@@ -41,7 +41,7 @@ class PluginBundleValues private constructor() {
         const val BUNDLE_EXTRA_INT_VERSION_CODE =
             "${BuildConfig.APPLICATION_ID}.extra.INT_VERSION_CODE" //$NON-NLS-1$
 
-        private const val BUNDLE_EXTRA_INT_ACTION = "${BuildConfig.APPLICATION_ID}.extra.ACTION"
+        const val BUNDLE_EXTRA_INT_ACTION = "${BuildConfig.APPLICATION_ID}.extra.ACTION"
 
         const val ACTION_GET_INFO = 0
         const val ACTION_SET_THEME = 1
@@ -59,6 +59,7 @@ class PluginBundleValues private constructor() {
             if (null == bundle) {
                 return false
             }
+            println(bundle)
             try {
                 BundleAssertions.assertHasInt(
                     bundle,

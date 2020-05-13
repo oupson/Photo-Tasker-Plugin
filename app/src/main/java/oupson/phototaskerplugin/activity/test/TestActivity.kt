@@ -27,8 +27,14 @@ class TestActivity : AppCompatActivity() {
         Shell.Config.setTimeout(10)
     }
 
+    override fun onStart() {
+        super.onStart()
+        println("onStart()")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        println("ls;f")
         setContentView(R.layout.activity_test)
 
         setSupportActionBar(bottomAppBar)

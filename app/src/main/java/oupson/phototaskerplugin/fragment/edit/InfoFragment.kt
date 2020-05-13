@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.textfield.TextInputLayout
+import com.twofortyfouram.locale.api.Intent.EXTRA_STRING_BLURB
 import oupson.phototaskerplugin.BuildConfig
 
 import oupson.phototaskerplugin.R
@@ -37,7 +38,7 @@ class InfoFragment : EditFragment() {
         return view
     }
 
-    override fun generateBundle(): Bundle? {
+    override fun finish(intent: Intent, resIntent: Intent) {
         var result: Bundle? = Bundle()
         val path = view?.findViewById<TextInputLayout?>(R.id.path_input_layout)?.editText?.text
         if (BuildConfig.DEBUG)
@@ -56,10 +57,9 @@ class InfoFragment : EditFragment() {
                 )
             }
         }
-        return result
-    }
+        resIntent.putExtra(com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE, result)
+        resIntent.putExtra(EXTRA_STRING_BLURB, "${getString(R.string.path_image_info_hint)} : $path\nAction : ${getString(R.string.get_image_info)}")
 
-    override fun onBackPressed(intent: Intent, resIntent: Intent) {
         if (TaskerPlugin.hostSupportsRelevantVariables(intent.extras)) {
             TaskerPlugin.addRelevantVariableList(resIntent, arrayOf(
                 "%vibrant\n Vibrant color\n",
@@ -81,5 +81,6 @@ class InfoFragment : EditFragment() {
                 "%metadata_date\nDate"
             ))
         }
+        super.finish(intent, resIntent)
     }
 }

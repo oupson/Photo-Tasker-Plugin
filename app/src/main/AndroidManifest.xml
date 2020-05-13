@@ -12,6 +12,20 @@
         android:name="android.permission.WRITE_SECURE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
 
+    <permission-group
+        android:name="oupson.phototaskerplugin.CHANGE_STYLE"
+        android:description="@string/permission_description"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:label="@string/set_theme" />
+
+    <permission
+        android:name="oupson.phototaskerplugin.CHANGE_STYLE_PERMISSION"
+        android:description="@string/permission_description"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:label="@string/set_theme"
+        android:permissionGroup="oupson.phototaskerplugin.CHANGE_STYLE"
+        android:protectionLevel="dangerous" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -20,9 +34,19 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
+        <receiver
+            android:name=".receiver.ThemeChangerReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="oupson.phototaskerplugin.CHANGE_STYLE_PERMISSION">
+            <intent-filter>
+                <action android:name="oupson.phototaskerplugin.change_theme" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".activity.test.AccentListerActivity"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name=".activity.test.PaletteTestActivity"
             android:exported="true" />
@@ -35,7 +59,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.EditActivity"
             android:exported="false"

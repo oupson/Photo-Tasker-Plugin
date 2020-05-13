@@ -1,6 +1,7 @@
 package oupson.phototaskerplugin.activity
 
 import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -9,9 +10,11 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.annotation.Nullable
-import com.twofortyfouram.locale.sdk.client.ui.activity.AbstractAppCompatPluginActivity
+import androidx.appcompat.app.AppCompatActivity
+import com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE
+import com.twofortyfouram.spackle.bundle.BundleScrubber
 import kotlinx.android.synthetic.main.activity_edit.*
+import oupson.phototaskerplugin.BuildConfig
 import oupson.phototaskerplugin.R
 import oupson.phototaskerplugin.bundle.PluginBundleValues
 import oupson.phototaskerplugin.fragment.EditFragment
@@ -19,9 +22,30 @@ import oupson.phototaskerplugin.fragment.edit.InfoFragment
 import oupson.phototaskerplugin.fragment.edit.ThemeFragment
 import oupson.phototaskerplugin.tasker.TaskerPlugin
 
-class EditActivity : AbstractAppCompatPluginActivity() {
+class EditActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "EditActivity"
+    }
+
+    private var mIsCancelled = false
+
+    val previousBundle : Bundle? by lazy {
+        if (BuildConfig.DEBUG)
+            Log.i(TAG, "getIntent() : $intent")
+        BundleScrubber.scrub(intent).also {
+            if (BuildConfig.DEBUG)
+                Log.v(TAG, "Successfully scrubbed intent : $it")
+        }
+
+        val previousBundle =intent.getBundleExtra(EXTRA_BUNDLE)
+        BundleScrubber.scrub(previousBundle).also {
+            if (BuildConfig.DEBUG)
+                Log.v(TAG, "Successfully scrubbed intent : $it")
+        }
+
+        if (BuildConfig.DEBUG)
+            Log.i(TAG, "Previous bundle : $previousBundle")
+        previousBundle
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,32 +115,8 @@ class EditActivity : AbstractAppCompatPluginActivity() {
         supportActionBar?.setSubtitle(R.string.plugin_name)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-    }
 
-    override fun onPostCreateWithPreviousResult(
-        previousBundle: Bundle,
-        previousBlurb: String
-    ) {
-        action_selector_spinner.setSelection(PluginBundleValues.getAction(previousBundle))
-    }
-
-    override fun isBundleValid(bundle: Bundle): Boolean {
-        return PluginBundleValues.isBundleValid(bundle)
-    }
-
-    @Nullable
-    override fun getResultBundle(): Bundle? {
-        return (supportFragmentManager.findFragmentById(R.id.fragmentContainer) as? EditFragment)?.generateBundle()
-    }
-
-    override fun getResultBlurb(bundle: Bundle): String {
-        val message = PluginBundleValues.getPath(bundle) ?: ""
-        val maxBlurbLength = resources.getInteger(
-            R.integer.com_twofortyfouram_locale_sdk_client_maximum_blurb_length
-        )
-        return if (message.length > maxBlurbLength) {
-            message.substring(0, maxBlurbLength)
-        } else message
+        action_selector_spinner.setSelection(previousBundle?.getInt(PluginBundleValues.BUNDLE_EXTRA_INT_ACTION) ?: 0)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -124,12 +124,13 @@ class EditActivity : AbstractAppCompatPluginActivity() {
         return true
     }
 
-    override fun onBackPressed() {
-        mIsCancelled =
-            (supportFragmentManager.findFragmentById(R.id.fragmentContainer) as? EditFragment)?.isCancelled()
-                ?: false
-        val resIntent = intent
-
+    override fun finish() {
+        if (!mIsCancelled) {
+            mIsCancelled =
+                (supportFragmentManager.findFragmentById(R.id.fragmentContainer) as? EditFragment)?.isCancelled()
+                    ?: false
+        }
+        val resIntent = Intent()
         if (TaskerPlugin.Setting.hostSupportsSynchronousExecution(intent.extras)) {
             TaskerPlugin.Setting.requestTimeoutMS(
                 resIntent,
@@ -137,13 +138,13 @@ class EditActivity : AbstractAppCompatPluginActivity() {
             )
         }
 
-        (supportFragmentManager.findFragmentById(R.id.fragmentContainer) as? EditFragment)?.onBackPressed(
+        (supportFragmentManager.findFragmentById(R.id.fragmentContainer) as? EditFragment)?.finish(
             intent,
             resIntent
         )
 
-        setResult(Activity.RESULT_OK, resIntent)
-        finish()
+        setResult(if (mIsCancelled) Activity.RESULT_CANCELED else Activity.RESULT_OK, resIntent)
+        super.finish()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {

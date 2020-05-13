@@ -17,7 +17,7 @@ import lineageos.providers.LineageSettings
 import oupson.phototaskerplugin.BuildConfig
 import kotlin.math.abs
 
-class OverlayHelper {
+internal class OverlayHelper {
     class UnsupportedDeviceException :
         Exception("VERSION >= Q : ${Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q}; Lineage os Pie : ${isLineageOsPie()}")
 
@@ -44,7 +44,9 @@ class OverlayHelper {
             when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
                     val colorList = hashMapOf<Int, String>()
-                    colorList[getSystemDefault(isDark)] = "default"
+                    colorList[getSystemDefault(
+                        isDark
+                    )] = "default"
                     val overlayDump = Shell.su("cmd overlay dump").exec()
                     if (overlayDump.isSuccess) {
                         overlayDump.out.joinToString("").split('}').forEach {
@@ -85,7 +87,9 @@ class OverlayHelper {
                 }
                 isLineageOsPie() -> {
                     val colorList = hashMapOf<Int, String>()
-                    colorList[getSystemDefault(isDark)] = "default"
+                    colorList[getSystemDefault(
+                        isDark
+                    )] = "default"
                     lineageOsAccentPackageList.forEach { packageName ->
                         val r = context.packageManager.getResourcesForApplication(packageName)
                         val lightColor = r.getColor(
@@ -126,9 +130,14 @@ class OverlayHelper {
 
             when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
-                    if (isDark && !isDarkModeEnabled(context)) {
+                    if (isDark && !isDarkModeEnabled(
+                            context
+                        )
+                    ) {
                         Settings.Secure.putInt(context.contentResolver, "ui_night_mode", 2)
-                    } else if (!isLightModeEnabled(context) && !isDark) {
+                    } else if (!isLightModeEnabled(
+                            context
+                        ) && !isDark) {
                         Settings.Secure.putInt(context.contentResolver, "ui_night_mode", 1)
                     }
 
@@ -169,7 +178,9 @@ class OverlayHelper {
             context: Context,
             accentList: HashMap<Int, String> = getColorList(
                 context,
-                isDarkModeEnabled(context)
+                isDarkModeEnabled(
+                    context
+                )
             )
         ): String? {
             if (isLineageOsPie() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -193,14 +204,20 @@ class OverlayHelper {
                     if (pack != "default")
                         Shell.su("cmd overlay enable-exclusive --category $pack").exec()
                     else {
-                        val enabled = getAccentEnabled(context)
+                        val enabled =
+                            getAccentEnabled(
+                                context
+                            )
                         if (enabled != null)
                             Shell.su("cmd overlay disable $enabled").exec()
                     }
 
                 }
                 isLineageOsPie() -> {
-                    val enabled = getAccentEnabled(context)
+                    val enabled =
+                        getAccentEnabled(
+                            context
+                        )
                     val success = if (enabled != null)
                         Shell.su("cmd overlay disable $enabled").exec().isSuccess
                     else
@@ -220,11 +237,18 @@ class OverlayHelper {
         }
 
         fun getSuggestion(context: Context, bitmap: Bitmap): Pair<Boolean, String?> {
-            val isDark = isDark(bitmap)
+            val isDark =
+                isDark(
+                    bitmap
+                )
             if (BuildConfig.DEBUG)
                 Log.i(TAG, "Is Dark : $isDark")
 
-            val colorList = getColorList(context, isDark)
+            val colorList =
+                getColorList(
+                    context,
+                    isDark
+                )
 
             val accentColors = colorList.keys.toIntArray()
             val palette = Palette.from(bitmap).generate()
@@ -237,7 +261,14 @@ class OverlayHelper {
 
             var nearest = accentColors[0]
             accentColors.forEach {
-                if (distance(vibrant, nearest) > distance(vibrant, it)) {
+                if (distance(
+                        vibrant,
+                        nearest
+                    ) > distance(
+                        vibrant,
+                        it
+                    )
+                ) {
                     nearest = it
                     if (BuildConfig.DEBUG)
                         Log.v(
