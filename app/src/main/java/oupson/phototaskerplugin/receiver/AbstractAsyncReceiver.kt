@@ -99,7 +99,7 @@ abstract class AbstractAsyncReceiver : BroadcastReceiver() {
             const val MESSAGE_HANDLE_CALLBACK = 0
 
             private fun castObj(o: Any): Pair<PendingResult, AsyncCallback> {
-                return o as Pair<PendingResult, AsyncCallback>
+                return (o as Pair<PendingResult, AsyncCallback>)
             }
 
             private fun quit() {

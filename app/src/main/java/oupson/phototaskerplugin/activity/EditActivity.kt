@@ -29,7 +29,7 @@ class EditActivity : AppCompatActivity() {
 
     private var mIsCancelled = false
 
-    val previousBundle : Bundle? by lazy {
+    private val previousBundle : Bundle? by lazy {
         if (BuildConfig.DEBUG)
             Log.i(TAG, "getIntent() : $intent")
         BundleScrubber.scrub(intent).also {

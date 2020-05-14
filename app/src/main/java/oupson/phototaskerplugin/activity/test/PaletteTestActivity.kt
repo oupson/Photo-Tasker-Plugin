@@ -56,7 +56,12 @@ class PaletteTestActivity : AppCompatActivity() {
                 input?.close()
                 btm
             } else {
-                TODO("others : ${wallpaperManager.wallpaperInfo.packageName}")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    drawableToBitmap(wallpaperManager.getBuiltInDrawable(WallpaperManager.FLAG_SYSTEM))
+                } else {
+                    drawableToBitmap(wallpaperManager.builtInDrawable)
+                }
+                //TODO("others : ${wallpaperManager.wallpaperInfo.packageName}")
             }
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
