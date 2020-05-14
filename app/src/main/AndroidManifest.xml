@@ -34,36 +34,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
-        <receiver
-            android:name=".receiver.ThemeChangerReceiver"
-            android:enabled="true"
-            android:exported="true"
-            android:permission="oupson.phototaskerplugin.CHANGE_STYLE_PERMISSION">
-            <intent-filter>
-                <action android:name="oupson.phototaskerplugin.change_theme" />
-            </intent-filter>
-        </receiver>
-
-        <activity
-            android:name=".activity.test.AccentListerActivity"
-            android:exported="true" />
-        <activity
-            android:name=".activity.test.PaletteTestActivity"
-            android:exported="true" />
-        <activity
-            android:name=".activity.test.TestActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".activity.EditActivity"
             android:exported="false"
             android:label="@string/plugin_name"
-            android:theme="@style/Theme.AppCompat"
             android:uiOptions="splitActionBarWhenNarrow"
             android:windowSoftInputMode="adjustResize"
             tools:ignore="UnusedAttribute" />
@@ -89,6 +63,7 @@
                 <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
             </intent-filter>
         </activity-alias>
+
         <!--
              If this plug-in does not stand alone (e.g. it is only a plug-in for Locale and does not
              have a Launcher Activity), including this in the manifest will help when users try to
@@ -104,6 +79,25 @@
                 <category android:name="android.intent.category.INFO" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activity.test.TestActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activity.test.AccentListerActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".activity.test.PaletteTestActivity"
+            android:exported="true" />
+
         <!--
              This is the "fire" BroadcastReceiver. Note that the host will reject plug-in
              BroadcastReceivers for the following reasons:
@@ -121,6 +115,16 @@
             <!-- this Intent filter allows the plug-in to discovered by the host. -->
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".receiver.ThemeChangerReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="oupson.phototaskerplugin.CHANGE_STYLE_PERMISSION">
+            <intent-filter>
+                <action android:name="oupson.phototaskerplugin.change_theme" />
             </intent-filter>
         </receiver>
     </application>

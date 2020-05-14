@@ -2,7 +2,6 @@ package oupson.phototaskerplugin.activity
 
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -52,6 +51,8 @@ class EditActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit)
 
+        setSupportActionBar(editBottomAppBar)
+
         ArrayAdapter.createFromResource(
             this,
             R.array.edit_spinner_array,
@@ -96,8 +97,8 @@ class EditActivity : AppCompatActivity() {
         /*
          * To help the user keep context, the title shows the host's name and the subtitle
          * shows the plug-in's name.
-         */
-        var callingApplicationLabel: CharSequence? = null
+        */
+        /**var callingApplicationLabel: CharSequence? = null
         try {
             callingApplicationLabel = packageManager.getApplicationLabel(
                 packageManager.getApplicationInfo(
@@ -107,10 +108,7 @@ class EditActivity : AppCompatActivity() {
             )
         } catch (e: PackageManager.NameNotFoundException) {
             Log.e(TAG, "Calling package couldn't be found%s", e) //$NON-NLS-1$
-        }
-        if (null != callingApplicationLabel) {
-            title = callingApplicationLabel
-        }
+        }*/
 
         supportActionBar?.setSubtitle(R.string.plugin_name)
 

@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Build
 import android.provider.Settings
+import android.provider.Settings.SettingNotFoundException
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.res.ResourcesCompat
@@ -106,6 +107,7 @@ internal class OverlayHelper {
             }
         }
 
+        @Throws(UnsupportedDeviceException::class, Resources.NotFoundException::class)
         private fun getSystemDefault(isDark: Boolean): Int {
             val system: Resources = Resources.getSystem()
             return ResourcesCompat.getColor(
@@ -118,6 +120,7 @@ internal class OverlayHelper {
             )
         }
 
+        @Throws(UnsupportedDeviceException::class)
         fun setDarkMode(context: Context, isDark: Boolean) {
             if (ActivityCompat.checkSelfPermission(
                     context,
@@ -162,18 +165,21 @@ internal class OverlayHelper {
             }
         }
 
+        @Throws(UnsupportedDeviceException::class, SettingNotFoundException::class)
         fun isDarkModeEnabled(context: Context): Boolean =
             if (isLineageOsPie() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                 Settings.Secure.getInt(context.contentResolver, "ui_night_mode") == 2
             else
                 throw UnsupportedDeviceException()
 
+        @Throws(UnsupportedDeviceException::class, SettingNotFoundException::class)
         fun isLightModeEnabled(context: Context): Boolean =
             if (isLineageOsPie() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                 Settings.Secure.getInt(context.contentResolver, "ui_night_mode") == 1
             else
                 throw UnsupportedDeviceException()
 
+        @Throws(UnsupportedDeviceException::class)
         fun getAccentEnabled(
             context: Context,
             accentList: HashMap<Int, String> = getColorList(
@@ -198,6 +204,7 @@ internal class OverlayHelper {
             }
         }
 
+        @Throws(UnsupportedDeviceException::class)
         fun setAccentPackage(context: Context, pack: String) {
             when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {

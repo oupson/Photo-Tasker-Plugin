@@ -3,17 +3,10 @@ package oupson.phototaskerplugin.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
 import android.util.Log
 import oupson.phototaskerplugin.BuildConfig
 import oupson.phototaskerplugin.helper.OverlayHelper
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileNotFoundException
-import java.io.InputStream
-
+import oupson.phototaskerplugin.util.getBitmap
 
 class ThemeChangerReceiver : BroadcastReceiver() {
     companion object {
@@ -86,30 +79,6 @@ class ThemeChangerReceiver : BroadcastReceiver() {
                 )
         } catch (e : Exception) {
             Log.e(TAG, "Exception on setThemeWithImage() : $e")
-        }
-    }
-
-    private fun getBitmap(context: Context, path : String) : Bitmap? {
-        val inputStream = openInputStream(context, path) ?: return null
-        val bitmap = BitmapFactory.decodeStream(inputStream)
-        inputStream.close()
-        return bitmap
-    }
-
-    private fun openInputStream(context : Context, path : String) : InputStream? {
-        val pathUri = Uri.parse(path)
-        return when (pathUri.scheme) {
-            "content" -> context.contentResolver.openInputStream(pathUri)
-            "file" -> FileInputStream(File(pathUri.path!!))
-            else -> {
-                val file =
-                    File(path.let { if (!it.startsWith("sdcard")) "sdcard/$it" else it })
-                if (file.exists()) {
-                    FileInputStream(file)
-                } else {
-                    throw FileNotFoundException(file.path)
-                }
-            }
         }
     }
 }
